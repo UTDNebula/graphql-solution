@@ -13,6 +13,7 @@ type DBUser struct {
 	Name          string                   `bson:"name"`
 	Hobbies       []string                 `bson:"hobbies"`
 	Products      []bson.ObjectID          `bson:"products"`
+	Reviews       []bson.ObjectID          `bson:"reviews"`
 }
 
 type DBProduct struct {
@@ -21,6 +22,7 @@ type DBProduct struct {
 	Price         float64                  `bson:"price"`
 	Name          string                   `bson:"name"`
 	Description   string                   `bson:"description"`
+	Reviews       []bson.ObjectID          `bson:"reviews"`
 }
 
 // Challenge 2 Part A
@@ -47,11 +49,17 @@ func TransformUser(dbUser *DBUser) *User {
 		products[i] = &Product{ID: productID.Hex()}
 	}
 
+	reviews := make([]*Review, len(dbUser.Reviews))
+	for i, reviewID := range dbUser.Reviews {
+		reviews[i] = &Review{ID: reviewID.Hex()}
+	}
+
 	return &User{
 		ID:       dbUser.ID.Hex(),
 		Name:     dbUser.Name,
 		Hobbies:  dbUser.Hobbies,
 		Products: products,
+		Reviews:  reviews,
 	}
 }
 
@@ -64,12 +72,18 @@ func TransformProduct(dbProduct *DBProduct) *Product {
 		ID: dbProduct.Seller.Hex(),
 	}
 
+	reviews := make([]*Review, len(dbProduct.Reviews))
+	for i, reviewID := range dbProduct.Reviews {
+		reviews[i] = &Review{ID: reviewID.Hex()}
+	}
+
 	return &Product{
 		ID:          dbProduct.ID.Hex(),
 		Seller:      userRef,
 		Price:       dbProduct.Price,
 		Name:        dbProduct.Name,
 		Description: dbProduct.Description,
+		Reviews:     reviews,
 	}
 }
 
@@ -88,10 +102,10 @@ func TransformReview(dbReview *DBReview) *Review {
 	}
 
 	return &Review{
-		ID: dbReview.ID.Hex(),
-		Title: dbReview.Title,
+		ID:          dbReview.ID.Hex(),
+		Title:       dbReview.Title,
 		Description: dbReview.Description,
-		Author: authorRef,
-		Product: productRef,
+		Author:      authorRef,
+		Product:     productRef,
 	}
 }

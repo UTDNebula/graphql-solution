@@ -177,7 +177,7 @@ func (r *queryResolver) Reviews(ctx context.Context, filter *model.ReviewFilter)
 		if filter.TitleContains != nil && *filter.TitleContains != "" {
 			reviewQuery["title"] = bson.M{
 				"$regex":   *filter.TitleContains,
-				"$options": "i", 
+				"$options": "i",
 			}
 		}
 

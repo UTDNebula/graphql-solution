@@ -12,6 +12,7 @@ type User {
   name: String!
   hobbies: [String!]!
   products: [Product!]!
+  reviews: [Review!]!
 }
 
 type Product {
@@ -20,6 +21,7 @@ type Product {
   price: Float!
   name: String!
   description: String!
+  reviews: [Review!]!
 }
 
 input ProductFilter {

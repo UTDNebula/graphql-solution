@@ -3,11 +3,12 @@
 package model
 
 type Product struct {
-	ID          string  `json:"id"`
-	Seller      *User   `json:"seller"`
-	Price       float64 `json:"price"`
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
+	ID          string    `json:"id"`
+	Seller      *User     `json:"seller"`
+	Price       float64   `json:"price"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Reviews     []*Review `json:"reviews"`
 }
 
 type ProductFilter struct {
@@ -38,4 +39,5 @@ type User struct {
 	Name     string     `json:"name"`
 	Hobbies  []string   `json:"hobbies"`
 	Products []*Product `json:"products"`
+	Reviews  []*Review  `json:"reviews"`
 }
