@@ -88,10 +88,11 @@ func TransformReview(dbReview *DBReview) *Review {
 	}
 
 	return &Review{
-		ID: dbReview.ID.Hex(),
-		Title: dbReview.Title,
+		ID:          dbReview.ID.Hex(),
+		Rating:      dbReview.Rating,
+		Title:       dbReview.Title,
 		Description: dbReview.Description,
-		Author: authorRef,
-		Product: productRef,
+		Author:      authorRef,
+		Product:     productRef,
 	}
 }
