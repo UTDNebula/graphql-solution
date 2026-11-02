@@ -9,6 +9,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/KBui4/graphql-workshop/graph/loaders"
 	"github.com/KBui4/graphql-workshop/graph/model"
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
@@ -17,23 +18,13 @@ import (
 func (r *productResolver) Seller(ctx context.Context, obj *model.Product) (*model.User, error) {
 	// Field resolver for the seller field in Product
 
-	// Here we use the event resolver we previously defined for querying User by ID
-	return r.Query().User(ctx, obj.Seller.ID)
+	// Now use dataloaders for field resolvers
+	return loaders.GetUser(ctx, obj.Seller)
 }
 
 // Reviews is the resolver for the reviews field.
 func (r *productResolver) Reviews(ctx context.Context, obj *model.Product) ([]*model.Review, error) {
-	reviews := make([]*model.Review, 0, len(obj.Reviews))
-
-	for _, reviewRef := range obj.Reviews {
-		review, err := r.Query().Review(ctx, reviewRef.ID)
-		if err != nil {
-			return nil, err
-		}
-		reviews = append(reviews, review)
-	}
-
-	return reviews, nil
+	return loaders.GetReviews(ctx, obj.Reviews)
 }
 
 // User is the resolver for the user field.
@@ -224,48 +215,23 @@ func (r *queryResolver) Reviews(ctx context.Context, filter *model.ReviewFilter)
 
 // Author is the resolver for the author field.
 func (r *reviewResolver) Author(ctx context.Context, obj *model.Review) (*model.User, error) {
-	return r.Query().User(ctx, obj.Author.ID)
+	return loaders.GetUser(ctx, obj.Author)
 }
 
 // Product is the resolver for the product field.
 func (r *reviewResolver) Product(ctx context.Context, obj *model.Review) (*model.Product, error) {
-	return r.Query().Product(ctx, obj.Product.ID)
+	return loaders.GetProduct(ctx, obj.Product)
 }
 
 // Products is the resolver for the products field.
 func (r *userResolver) Products(ctx context.Context, obj *model.User) ([]*model.Product, error) {
 	// Field resolver for the products field in User
-
-	// Allocate memory
-	products := make([]*model.Product, 0, len(obj.Products))
-
-	// Note that obj.Products only contains a list of product objectIDs, not full product objects
-	// We loop through these objectIDs and sequentially query for the full product objects,
-	// appending them to products
-	for _, productRef := range obj.Products {
-		product, err := r.Query().Product(ctx, productRef.ID)
-		if err != nil {
-			return nil, err
-		}
-		products = append(products, product)
-	}
-
-	return products, nil
+	return loaders.GetProducts(ctx, obj.Products)
 }
 
 // Reviews is the resolver for the reviews field.
 func (r *userResolver) Reviews(ctx context.Context, obj *model.User) ([]*model.Review, error) {
-	reviews := make([]*model.Review, 0, len(obj.Reviews))
-
-	for _, reviewRef := range obj.Reviews {
-		review, err := r.Query().Review(ctx, reviewRef.ID)
-		if err != nil {
-			return nil, err
-		}
-		reviews = append(reviews, review)
-	}
-
-	return reviews, nil
+return loaders.GetReviews(ctx, obj.Reviews)
 }
 
 // Product returns ProductResolver implementation.

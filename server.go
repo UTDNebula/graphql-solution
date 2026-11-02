@@ -12,6 +12,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/KBui4/graphql-workshop/configs"
 	"github.com/KBui4/graphql-workshop/graph"
+	"github.com/KBui4/graphql-workshop/graph/loaders"
 	"github.com/joho/godotenv"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -47,8 +48,9 @@ func main() {
 		Cache: lru.New[string](100),
 	})
 
+	graphHandler := loaders.Middleware(srv)
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	http.Handle("/query", graphHandler)
 
 	log.Printf("Connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
