@@ -80,6 +80,8 @@ type ComplexityRoot struct {
 
 type ProductResolver interface {
 	Seller(ctx context.Context, obj *model.Product) (*model.User, error)
+
+	Reviews(ctx context.Context, obj *model.Product) ([]*model.Review, error)
 }
 type QueryResolver interface {
 	User(ctx context.Context, id string) (*model.User, error)
@@ -95,6 +97,7 @@ type ReviewResolver interface {
 }
 type UserResolver interface {
 	Products(ctx context.Context, obj *model.User) ([]*model.Product, error)
+	Reviews(ctx context.Context, obj *model.User) ([]*model.Review, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -832,7 +835,7 @@ func (ec *executionContext) _Product_reviews(ctx context.Context, field graphql.
 			return ec.fieldContext_Product_reviews(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Reviews, nil
+			return ec.Resolvers.Product().Reviews(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*model.Review) graphql.Marshaler {
@@ -846,8 +849,8 @@ func (ec *executionContext) fieldContext_Product_reviews(_ context.Context, fiel
 	fc = &graphql.FieldContext{
 		Object:     "Product",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_Review(ctx, field)
 		},
@@ -1449,7 +1452,7 @@ func (ec *executionContext) _User_reviews(ctx context.Context, field graphql.Col
 			return ec.fieldContext_User_reviews(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Reviews, nil
+			return ec.Resolvers.User().Reviews(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*model.Review) graphql.Marshaler {
@@ -1463,8 +1466,8 @@ func (ec *executionContext) fieldContext_User_reviews(_ context.Context, field g
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_Review(ctx, field)
 		},
@@ -2696,10 +2699,11 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "reviews":
-			out.Values[i] = ec._Product_reviews(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
+			out.ResolveConcurrently(ec.OperationContext, &deferred, i,
+				true, true,
+				func(ctx context.Context) graphql.Marshaler {
+					return ec._Product_reviews(ctx, field, obj)
+				})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2896,10 +2900,11 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 					return ec._User_products(ctx, field, obj)
 				})
 		case "reviews":
-			out.Values[i] = ec._User_reviews(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
+			out.ResolveConcurrently(ec.OperationContext, &deferred, i,
+				true, true,
+				func(ctx context.Context) graphql.Marshaler {
+					return ec._User_reviews(ctx, field, obj)
+				})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

@@ -21,6 +21,21 @@ func (r *productResolver) Seller(ctx context.Context, obj *model.Product) (*mode
 	return r.Query().User(ctx, obj.Seller.ID)
 }
 
+// Reviews is the resolver for the reviews field.
+func (r *productResolver) Reviews(ctx context.Context, obj *model.Product) ([]*model.Review, error) {
+	reviews := make([]*model.Review, 0, len(obj.Reviews))
+
+	for _, reviewRef := range obj.Reviews {
+		review, err := r.Query().Review(ctx, reviewRef.ID)
+		if err != nil {
+			return nil, err
+		}
+		reviews = append(reviews, review)
+	}
+
+	return reviews, nil
+}
+
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
 	timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
@@ -236,6 +251,21 @@ func (r *userResolver) Products(ctx context.Context, obj *model.User) ([]*model.
 	}
 
 	return products, nil
+}
+
+// Reviews is the resolver for the reviews field.
+func (r *userResolver) Reviews(ctx context.Context, obj *model.User) ([]*model.Review, error) {
+	reviews := make([]*model.Review, 0, len(obj.Reviews))
+
+	for _, reviewRef := range obj.Reviews {
+		review, err := r.Query().Review(ctx, reviewRef.ID)
+		if err != nil {
+			return nil, err
+		}
+		reviews = append(reviews, review)
+	}
+
+	return reviews, nil
 }
 
 // Product returns ProductResolver implementation.
