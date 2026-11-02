@@ -139,10 +139,88 @@ func (r *queryResolver) Products(ctx context.Context, filter *model.ProductFilte
 	return products, err
 }
 
+// Review is the resolver for the review field.
+func (r *queryResolver) Review(ctx context.Context, id string) (*model.Review, error) {
+	timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	objectId, err := bson.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	var dbReview model.DBReview
+	result := r.ReviewCollection.FindOne(timeoutCtx, bson.M{"_id": objectId})
+	if err = result.Decode(&dbReview); err != nil {
+		return nil, err
+	}
+
+	return model.TransformReview(&dbReview), err
+}
+
+// Reviews is the resolver for the reviews field.
+func (r *queryResolver) Reviews(ctx context.Context, filter *model.ReviewFilter) ([]*model.Review, error) {
+	timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	var reviews []*model.Review
+	var dbReviews []*model.DBReview
+
+	var reviewQuery = bson.M{}
+	if filter != nil {
+		// Check for rating
+		if filter.Rating != nil && *filter.Rating >= 1 && *filter.Rating <= 5 {
+			reviewQuery["rating"] = *filter.Rating
+		}
+
+		// Check for name
+		if filter.TitleContains != nil && *filter.TitleContains != "" {
+			reviewQuery["title"] = bson.M{
+				"$regex":   *filter.TitleContains,
+				"$options": "i", 
+			}
+		}
+
+		// Check for description
+		if filter.DescriptionContains != nil && *filter.DescriptionContains != "" {
+			reviewQuery["description"] = bson.M{
+				"$regex":   *filter.DescriptionContains,
+				"$options": "i",
+			}
+		}
+	}
+
+	cursor, err := r.ReviewCollection.Find(timeoutCtx, reviewQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(timeoutCtx)
+
+	if err = cursor.All(timeoutCtx, &dbReviews); err != nil {
+		return nil, err
+	}
+
+	for _, dbReview := range dbReviews {
+		reviews = append(reviews, model.TransformReview(dbReview))
+	}
+
+	return reviews, err
+}
+
+// Author is the resolver for the author field.
+func (r *reviewResolver) Author(ctx context.Context, obj *model.Review) (*model.User, error) {
+	return r.Query().User(ctx, obj.Author.ID)
+}
+
+// Product is the resolver for the product field.
+func (r *reviewResolver) Product(ctx context.Context, obj *model.Review) (*model.Product, error) {
+	return r.Query().Product(ctx, obj.Product.ID)
+}
+
 // Products is the resolver for the products field.
 func (r *userResolver) Products(ctx context.Context, obj *model.User) ([]*model.Product, error) {
 	// Field resolver for the products field in User
-	
+
 	// Allocate memory
 	products := make([]*model.Product, 0, len(obj.Products))
 
@@ -166,11 +244,15 @@ func (r *Resolver) Product() ProductResolver { return &productResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
+// Review returns ReviewResolver implementation.
+func (r *Resolver) Review() ReviewResolver { return &reviewResolver{r} }
+
 // User returns UserResolver implementation.
 func (r *Resolver) User() UserResolver { return &userResolver{r} }
 
 type (
 	productResolver struct{ *Resolver }
 	queryResolver   struct{ *Resolver }
+	reviewResolver  struct{ *Resolver }
 	userResolver    struct{ *Resolver }
 )

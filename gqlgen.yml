@@ -214,3 +214,10 @@ models:
     fields:
       seller:
         resolver: true
+
+  Review:
+    fields:
+      author:
+        resolver: true
+      product:
+        resolver: true

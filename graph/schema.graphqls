@@ -28,6 +28,20 @@ input ProductFilter {
 }
 
 # Challenge 1 Part A
+type Review {
+  id: ID!
+  rating: Int!
+  title: String!
+  description: String!
+  author: User!
+  product: Product!
+}
+
+input ReviewFilter {
+  rating: Int
+  titleContains: String
+  descriptionContains: String
+}
 
 
 type Query {
@@ -40,6 +54,6 @@ type Query {
   products(filter: ProductFilter): [Product!]!
 
   # Challenge 1 Part B
-
-
+  review(id: ID!): Review!
+  reviews(filter: ReviewFilter): [Review!]!
 }

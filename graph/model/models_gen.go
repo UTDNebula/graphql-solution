@@ -18,6 +18,21 @@ type ProductFilter struct {
 type Query struct {
 }
 
+type Review struct {
+	ID          string   `json:"id"`
+	Rating      int32    `json:"rating"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Author      *User    `json:"author"`
+	Product     *Product `json:"product"`
+}
+
+type ReviewFilter struct {
+	Rating              *int32  `json:"rating,omitempty"`
+	TitleContains       *string `json:"titleContains,omitempty"`
+	DescriptionContains *string `json:"descriptionContains,omitempty"`
+}
+
 type User struct {
 	ID       string     `json:"id"`
 	Name     string     `json:"name"`

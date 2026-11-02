@@ -24,6 +24,14 @@ type DBProduct struct {
 }
 
 // Challenge 2 Part A
+type DBReview struct {
+	ID            bson.ObjectID            `bson:"_id"`
+	Rating        int32                      `bson:"rating"`
+	Title         string                   `bson:"title"`
+	Description   string                   `bson:"description"`
+	Author        bson.ObjectID            `bson:"author"`
+	Product       bson.ObjectID            `bson:"product"`
+}
 
 
 // Transform functions
@@ -66,4 +74,24 @@ func TransformProduct(dbProduct *DBProduct) *Product {
 }
 
 // Challenge 2 Part B
+func TransformReview(dbReview *DBReview) *Review {
+	if dbReview == nil {
+		return nil
+	}
 
+	authorRef := &User{
+		ID: dbReview.Author.Hex(),
+	}
+
+	productRef := &Product{
+		ID: dbReview.Product.Hex(),
+	}
+
+	return &Review{
+		ID: dbReview.ID.Hex(),
+		Title: dbReview.Title,
+		Description: dbReview.Description,
+		Author: authorRef,
+		Product: productRef,
+	}
+}
