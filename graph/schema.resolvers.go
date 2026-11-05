@@ -226,39 +226,3 @@ type (
 	reviewResolver  struct{ *Resolver }
 	userResolver    struct{ *Resolver }
 )
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-/*
-	products := make([]*model.Product, 0, len(obj.Products))
-
-	// Note that obj.Products only contains a list of product objectIDs, not full product objects
-	// We loop through these objectIDs and sequentially query for the full product objects,
-	// appending them to products
-	for _, productRef := range obj.Products {
-		product, err := r.Query().Product(ctx, productRef)
-		if err != nil {
-			return nil, err
-		}
-		products = append(products, product)
-	}
-
-	return products, nil
-}
-
-// Product returns ProductResolver implementation.
-func (r *Resolver) Product() ProductResolver { return &productResolver{r} }
-
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
-
-// Review returns ReviewResolver implementation.
-func (r *Resolver) Review() ReviewResolver { return &reviewResolver{r} }
-
-// User returns UserResolver implementation.
-func (r *Resolver) User() UserResolver { return &userResolver{r} }
-*/
