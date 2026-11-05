@@ -1,62 +1,73 @@
 # GraphQL Schema
-# Resources: 
-# https://graphql.org/learn/schema/
-# https://graphql.org/learn/queries/
 
-# Defining other types
-scalar Any
-scalar DateTime
+# This allows us to force resolvers; this is how we'll get our field resolvers.
+directive @goField (
+  forceResolver: Boolean
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION 
+
+# This allows us to add bson tags for fields.
+directive @goTag(
+	key: String!
+	value: String
+) repeatable on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+
+# Define scalar type ObjectID
+scalar ObjectID
 
 type User {
-  id: ID!
-  name: String!
-  hobbies: [String!]!
-  products: [Product!]!
-  reviews: [Review!]!
+  id: ObjectID!         @goTag(key: "bson", value: "_id")      # A ! means this field cannot be null.
+  name: String!         @goTag(key: "bson", value: "name")
+  hobbies: [String!]!   @goTag(key: "bson", value: "hobbies")  # A ! next to a list means it cannot have any null objects.
+  products: [Product!]! @goTag(key: "bson", value: "products") @goField(forceResolver: true)
 }
 
 type Product {
-  id: ID!
-  seller: User!
-  price: Float!
-  name: String!
-  description: String!
-  reviews: [Review!]!
+  id: ObjectID!        @goTag(key: "bson", value: "_id")
+  seller: User!        @goTag(key: "bson", value: "seller") @goField(forceResolver: true)
+  price: Float!        @goTag(key: "bson", value: "price")
+  name: String!        @goTag(key: "bson", value: "name")
+  description: String! @goTag(key: "bson", value: "description")
 }
 
 input ProductFilter {
-  nameContains: String 
-  descriptionContains: String
+  name: String        @goTag(key: "bson", value: "name,omitempty")
+  description: String @goTag(key: "bson", value: "description,omitempty")
 }
+
+# GraphQL Cheatsheet: https://devhints.io/graphql
 
 # Challenge 1 Part A
 type Review {
-  id: ID!
-  rating: Int!
-  title: String!
-  description: String!
-  author: User!
-  product: Product!
+  id: ObjectID!        @goTag(key: "bson", value: "_id")
+  rating: Int!         @goTag(key: "bson", value: "rating")
+  title: String!       @goTag(key: "bson", value: "title")
+  description: String! @goTag(key: "bson", value: "description")
+  author: User!        @goTag(key: "bson", value: "author")
+  product: Product!    @goTag(key: "bson", value: "product")
 }
 
 input ReviewFilter {
-  rating: Int
-  titleContains: String
-  descriptionContains: String
+  rating: Int         @goTag(key: "bson", value: "rating,omitempty")
+  title: String       @goTag(key: "bson", value: "title,omitempty")
+  description: String @goTag(key: "bson", value: "description,omitempty")
 }
 
 
 type Query {
   # Example queries for users
-  user(id: ID!): User!  # Fetches one user given an ID
+  user(id: ObjectID!): User!  # Fetches one user given an ID
   users: [User!]!       # Fetches a list of all users
 
   # Example queries for product
-  product(id: ID!): Product!                    # Fetches one product given an ID
+  product(id: ObjectID!): Product!                    # Fetches one product given an ID
   products(filter: ProductFilter): [Product!]!  # Fetches a list of products by ProductFilter
                                                 # (Either by name, description, or all products if empty)
 
   # Challenge 1 Part B
-  review(id: ID!): Review!
+  review(id: ObjectID!): Review!
   reviews(filter: ReviewFilter): [Review!]!
 }
+
+# Resources to learn more: 
+# https://graphql.org/learn/schema/
+# https://graphql.org/learn/queries/

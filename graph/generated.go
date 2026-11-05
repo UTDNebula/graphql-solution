@@ -16,6 +16,7 @@ import (
 	"github.com/KBui4/graphql-workshop/graph/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 // region    ***************************** api!.gotpl *****************************
@@ -48,11 +49,11 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Product  func(childComplexity int, id string) int
+		Product  func(childComplexity int, id bson.ObjectID) int
 		Products func(childComplexity int, filter *model.ProductFilter) int
-		Review   func(childComplexity int, id string) int
+		Review   func(childComplexity int, id bson.ObjectID) int
 		Reviews  func(childComplexity int, filter *model.ReviewFilter) int
-		User     func(childComplexity int, id string) int
+		User     func(childComplexity int, id bson.ObjectID) int
 		Users    func(childComplexity int) int
 	}
 
@@ -84,11 +85,11 @@ type ProductResolver interface {
 	Reviews(ctx context.Context, obj *model.Product) ([]*model.Review, error)
 }
 type QueryResolver interface {
-	User(ctx context.Context, id string) (*model.User, error)
+	User(ctx context.Context, id bson.ObjectID) (*model.User, error)
 	Users(ctx context.Context) ([]*model.User, error)
-	Product(ctx context.Context, id string) (*model.Product, error)
+	Product(ctx context.Context, id bson.ObjectID) (*model.Product, error)
 	Products(ctx context.Context, filter *model.ProductFilter) ([]*model.Product, error)
-	Review(ctx context.Context, id string) (*model.Review, error)
+	Review(ctx context.Context, id bson.ObjectID) (*model.Review, error)
 	Reviews(ctx context.Context, filter *model.ReviewFilter) ([]*model.Review, error)
 }
 type ReviewResolver interface {
@@ -165,7 +166,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Query.Product(childComplexity, args["id"].(string)), true
+		return e.ComplexityRoot.Query.Product(childComplexity, args["id"].(bson.ObjectID)), true
 	case "Query.products":
 		if e.ComplexityRoot.Query.Products == nil {
 			break
@@ -187,7 +188,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Query.Review(childComplexity, args["id"].(string)), true
+		return e.ComplexityRoot.Query.Review(childComplexity, args["id"].(bson.ObjectID)), true
 	case "Query.reviews":
 		if e.ComplexityRoot.Query.Reviews == nil {
 			break
@@ -209,7 +210,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Query.User(childComplexity, args["id"].(string)), true
+		return e.ComplexityRoot.Query.User(childComplexity, args["id"].(bson.ObjectID)), true
 	case "Query.users":
 		if e.ComplexityRoot.Query.Users == nil {
 			break
@@ -562,8 +563,8 @@ func (ec *executionContext) field_Query_product_args(ctx context.Context, rawArg
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id",
-		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNID2string(ctx, v)
+		func(ctx context.Context, v any) (bson.ObjectID, error) {
+			return ec.unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋv2ᚋbsonᚐObjectID(ctx, v)
 		})
 	if err != nil {
 		return nil, err
@@ -590,8 +591,8 @@ func (ec *executionContext) field_Query_review_args(ctx context.Context, rawArgs
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id",
-		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNID2string(ctx, v)
+		func(ctx context.Context, v any) (bson.ObjectID, error) {
+			return ec.unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋv2ᚋbsonᚐObjectID(ctx, v)
 		})
 	if err != nil {
 		return nil, err
@@ -618,8 +619,8 @@ func (ec *executionContext) field_Query_user_args(ctx context.Context, rawArgs m
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id",
-		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNID2string(ctx, v)
+		func(ctx context.Context, v any) (bson.ObjectID, error) {
+			return ec.unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋv2ᚋbsonᚐObjectID(ctx, v)
 		})
 	if err != nil {
 		return nil, err
@@ -714,15 +715,15 @@ func (ec *executionContext) _Product_id(ctx context.Context, field graphql.Colle
 			return obj.ID, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNID2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v bson.ObjectID) graphql.Marshaler {
+			return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋv2ᚋbsonᚐObjectID(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
 func (ec *executionContext) fieldContext_Product_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("Product", field, false, false, "ID")
+	return graphql.NewScalarFieldContext("Product", field, false, false, "ObjectID")
 }
 
 func (ec *executionContext) _Product_seller(ctx context.Context, field graphql.CollectedField, obj *model.Product) (ret graphql.Marshaler) {
@@ -868,7 +869,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Query().User(ctx, fc.Args["id"].(string))
+			return ec.Resolvers.Query().User(ctx, fc.Args["id"].(bson.ObjectID))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *model.User) graphql.Marshaler {
@@ -944,7 +945,7 @@ func (ec *executionContext) _Query_product(ctx context.Context, field graphql.Co
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Query().Product(ctx, fc.Args["id"].(string))
+			return ec.Resolvers.Query().Product(ctx, fc.Args["id"].(bson.ObjectID))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *model.Product) graphql.Marshaler {
@@ -1032,7 +1033,7 @@ func (ec *executionContext) _Query_review(ctx context.Context, field graphql.Col
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Query().Review(ctx, fc.Args["id"].(string))
+			return ec.Resolvers.Query().Review(ctx, fc.Args["id"].(bson.ObjectID))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *model.Review) graphql.Marshaler {
@@ -1198,15 +1199,15 @@ func (ec *executionContext) _Review_id(ctx context.Context, field graphql.Collec
 			return obj.ID, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNID2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v bson.ObjectID) graphql.Marshaler {
+			return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋv2ᚋbsonᚐObjectID(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
 func (ec *executionContext) fieldContext_Review_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("Review", field, false, false, "ID")
+	return graphql.NewScalarFieldContext("Review", field, false, false, "ObjectID")
 }
 
 func (ec *executionContext) _Review_rating(ctx context.Context, field graphql.CollectedField, obj *model.Review) (ret graphql.Marshaler) {
@@ -1354,15 +1355,15 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 			return obj.ID, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNID2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v bson.ObjectID) graphql.Marshaler {
+			return ec.marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋv2ᚋbsonᚐObjectID(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
 func (ec *executionContext) fieldContext_User_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("User", field, false, false, "ID")
+	return graphql.NewScalarFieldContext("User", field, false, false, "ObjectID")
 }
 
 func (ec *executionContext) _User_name(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -2559,27 +2560,27 @@ func (ec *executionContext) unmarshalInputProductFilter(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"nameContains", "descriptionContains"}
+	fieldsInOrder := [...]string{"name", "description"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "nameContains":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameContains"))
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.NameContains = data
-		case "descriptionContains":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("descriptionContains"))
+			it.Name = data
+		case "description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.DescriptionContains = data
+			it.Description = data
 		}
 	}
 	return it, nil
@@ -2608,7 +2609,7 @@ func (ec *executionContext) unmarshalInputReviewFilter(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"rating", "titleContains", "descriptionContains"}
+	fieldsInOrder := [...]string{"rating", "title", "description"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2622,20 +2623,20 @@ func (ec *executionContext) unmarshalInputReviewFilter(ctx context.Context, obj 
 				return it, err
 			}
 			it.Rating = data
-		case "titleContains":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("titleContains"))
+		case "title":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.TitleContains = data
-		case "descriptionContains":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("descriptionContains"))
+			it.Title = data
+		case "description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.DescriptionContains = data
+			it.Description = data
 		}
 	}
 	return it, nil
@@ -3312,20 +3313,6 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 	return graphql.WrapContextMarshaler(ctx, res)
 }
 
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v any) (string, error) {
-	res, err := graphql.UnmarshalID(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	_ = sel
-	res := graphql.MarshalID(v)
-	if res == graphql.Null {
-		graphql.AddInvalidNullFromMarshaler(ctx, "ID!")
-	}
-	return res
-}
-
 func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v any) (int32, error) {
 	res, err := graphql.UnmarshalInt32(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -3336,6 +3323,20 @@ func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.Selec
 	res := graphql.MarshalInt32(v)
 	if res == graphql.Null {
 		graphql.AddInvalidNullFromMarshaler(ctx, "Int!")
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋv2ᚋbsonᚐObjectID(ctx context.Context, v any) (bson.ObjectID, error) {
+	res, err := model.UnmarshalObjectID(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNObjectID2goᚗmongodbᚗorgᚋmongoᚑdriverᚋv2ᚋbsonᚐObjectID(ctx context.Context, sel ast.SelectionSet, v bson.ObjectID) graphql.Marshaler {
+	_ = sel
+	res := model.MarshalObjectID(v)
+	if res == graphql.Null {
+		graphql.AddInvalidNullFromMarshaler(ctx, "ObjectID!")
 	}
 	return res
 }

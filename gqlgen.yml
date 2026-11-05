@@ -204,28 +204,6 @@ models:
     model:
       - github.com/99designs/gqlgen/graphql.Any
 
-  # Force field resolvers here
-  User:
-    fields:
-      products:
-        resolver: true
-      reviews:
-        resolver: true
-
-  Product:
-    fields:
-      seller:
-        resolver: true
-      reviews:
-        resolver: true
-
-  # Challenge 3 Part C
-
-  Review:
-    fields:
-      author:
-        resolver: true
-      product:
-        resolver: true
-
-
+  ObjectID:
+    model:
+      - github.com/KBui4/graphql-workshop/graph/model.ObjectID
