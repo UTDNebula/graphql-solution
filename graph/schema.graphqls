@@ -23,7 +23,7 @@ type User {
 }
 
 type Product {
-  id: ObjectID!        
+  id: ObjectID!        # We can force resolvers with @goField.
   seller: User!        @goField(forceResolver: true)
   price: Float!        
   name: String!        
@@ -39,12 +39,12 @@ input ProductFilter {
 
 # Challenge 1 Part A
 type Review {
-  id: ObjectID!        @goTag(key: "bson", value: "_id")
-  rating: Int!         @goTag(key: "bson", value: "rating")
-  title: String!       @goTag(key: "bson", value: "title")
-  description: String! @goTag(key: "bson", value: "description")
-  author: User!        @goTag(key: "bson", value: "author")
-  product: Product!    @goTag(key: "bson", value: "product")
+  id: ObjectID!        
+  rating: Int!         
+  title: String!       
+  description: String! 
+  author: User!        @goField(forceResolver: true)
+  product: Product!    @goField(forceResolver: true)
 }
 
 input ReviewFilter {
