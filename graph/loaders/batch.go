@@ -32,28 +32,28 @@ func (u *userReader) getUsers(ctx context.Context, userIDs []bson.ObjectID) ([]*
 	defer cursor.Close(ctx)
 
 	// Decode
-	var dbUsers []*model.DBUser
-	if err := cursor.All(ctx, &dbUsers); err != nil {
+	var users []*model.User
+	if err := cursor.All(ctx, &users); err != nil {
 		return nil, []error{err}
 	}
 
 	// $in does not return in order of given userIDs
 	// so we order with map.
-	userMap := make(map[bson.ObjectID]*model.User, len(dbUsers))
-	for _, dbUser := range dbUsers {
-		userMap[dbUser.ID] = model.TransformUser(dbUser)
+	userMap := make(map[bson.ObjectID]*model.User, len(users))
+	for _, user := range users {
+		userMap[user.ID] = user
 	}
 
-	users := make([]*model.User, len(userIDs))
+	orderedUsers := make([]*model.User, len(userIDs))
 	errs := make([]error, len(userIDs))
 	for i, ID := range userIDs {
-		users[i] = userMap[ID]
-		if users[i] == nil {
+		orderedUsers[i] = userMap[ID]
+		if orderedUsers[i] == nil {
 			errs[i] = mongo.ErrNoDocuments
 		}
 	}
 
-	return users, errs
+	return orderedUsers, errs
 }
 
 // getProducts implements a batch function that can retrieve many products by ID for use in a dataloader
@@ -64,26 +64,26 @@ func (p *productReader) getProducts(ctx context.Context, productIDs []bson.Objec
 	}
 	defer cursor.Close(ctx)
 
-	var dbProducts []*model.DBProduct
-	if err := cursor.All(ctx, &dbProducts); err != nil {
+	var products []*model.Product
+	if err := cursor.All(ctx, &products); err != nil {
 		return nil, []error{err}
 	}
 
-	productMap := make(map[bson.ObjectID]*model.Product, len(dbProducts))
-	for _, dbProduct := range dbProducts {
-		productMap[dbProduct.ID] = model.TransformProduct(dbProduct)
+	productMap := make(map[bson.ObjectID]*model.Product, len(products))
+	for _, product := range products {
+		productMap[product.ID] = product
 	}
 
-	products := make([]*model.Product, len(productIDs))
+	orderedProducts := make([]*model.Product, len(productIDs))
 	errs := make([]error, len(productIDs))
 	for i, ID := range productIDs {
-		products[i] = productMap[ID]
-		if products[i] == nil {
+		orderedProducts[i] = productMap[ID]
+		if orderedProducts[i] == nil {
 			errs[i] = mongo.ErrNoDocuments
 		}
 	}
 
-	return products, errs
+	return orderedProducts, errs
 }
 
 // getReviews implements a batch function that can retrieve many reviews by ID for use in a dataloader
@@ -94,98 +94,56 @@ func (r *reviewReader) getReviews(ctx context.Context, reviewIDs []bson.ObjectID
 	}
 	defer cursor.Close(ctx)
 
-	var dbReviews []*model.DBReview
-	if err := cursor.All(ctx, &dbReviews); err != nil {
+	var reviews []*model.Review
+	if err := cursor.All(ctx, &reviews); err != nil {
 		return nil, []error{err}
 	}
 
-	reviewMap := make(map[bson.ObjectID]*model.Review, len(dbReviews))
-	for _, dbReview := range dbReviews {
-		reviewMap[dbReview.ID] = model.TransformReview(dbReview)
+	reviewMap := make(map[bson.ObjectID]*model.Review, len(reviews))
+	for _, review := range reviews {
+		reviewMap[review.ID] = review
 	}
 
-	reviews := make([]*model.Review, len(reviewIDs))
+	orderedReviews := make([]*model.Review, len(reviewIDs))
 	errs := make([]error, len(reviewIDs))
 	for i, ID := range reviewIDs {
-		reviews[i] = reviewMap[ID]
-		if reviews[i] == nil {
+		orderedReviews[i] = reviewMap[ID]
+		if orderedReviews[i] == nil {
 			errs[i] = mongo.ErrNoDocuments
 		}
 	}
 
-	return reviews, errs
+	return orderedReviews, errs
 }
 
 // For convenience in resolvers
 
-func GetUser(ctx context.Context, userRef *model.User) (*model.User, error) {
-	userID, err := bson.ObjectIDFromHex(userRef.ID)
-	if err != nil {
-		return nil, err
-	}
-
+func GetUser(ctx context.Context, userRef bson.ObjectID) (*model.User, error) {
 	loaders := For(ctx)
-	return loaders.UserLoader.Load(ctx, userID)
+	return loaders.UserLoader.Load(ctx, userRef)
 }
 
-func GetUsers(ctx context.Context, usersRef []*model.User) ([]*model.User, error) {
-	userIDs := make([]bson.ObjectID, len(usersRef))
-	for i, user := range usersRef {
-		userID, err := bson.ObjectIDFromHex(user.ID)
-		if err != nil {
-			return nil, err
-		}
-		userIDs[i] = userID
-	}
-
+func GetUsers(ctx context.Context, usersRef []bson.ObjectID) ([]*model.User, error) {
 	loaders := For(ctx)
-	return loaders.UserLoader.LoadAll(ctx, userIDs)
+	return loaders.UserLoader.LoadAll(ctx, usersRef)
 }
 
-func GetProduct(ctx context.Context, productRef *model.Product) (*model.Product, error) {
-	productID, err := bson.ObjectIDFromHex(productRef.ID)
-	if err != nil {
-		return nil, err
-	}
-
+func GetProduct(ctx context.Context, productRef bson.ObjectID) (*model.Product, error) {
 	loaders := For(ctx)
-	return loaders.ProductLoader.Load(ctx, productID)
+	return loaders.ProductLoader.Load(ctx, productRef)
 }
 
-func GetProducts(ctx context.Context, productsRef []*model.Product) ([]*model.Product, error) {
-	productIDs := make([]bson.ObjectID, len(productsRef))
-	for i, product := range productsRef {
-		productID, err := bson.ObjectIDFromHex(product.ID)
-		if err != nil {
-			return nil, err
-		}
-		productIDs[i] = productID
-	}
-
+func GetProducts(ctx context.Context, productsRef []bson.ObjectID) ([]*model.Product, error) {
 	loaders := For(ctx)
-	return loaders.ProductLoader.LoadAll(ctx, productIDs)
+	return loaders.ProductLoader.LoadAll(ctx, productsRef)
 }
 
-func GetReview(ctx context.Context, reviewRef *model.Review) (*model.Review, error) {
-	reviewID, err := bson.ObjectIDFromHex(reviewRef.ID)
-	if err != nil {
-		return nil, err
-	}
-
+func GetReview(ctx context.Context, reviewRef bson.ObjectID) (*model.Review, error) {
 	loaders := For(ctx)
-	return loaders.ReviewLoader.Load(ctx, reviewID)
+	return loaders.ReviewLoader.Load(ctx, reviewRef)
 }
 
-func GetReviews(ctx context.Context, reviewsRef []*model.Review) ([]*model.Review, error) {
-	reviewIDs := make([]bson.ObjectID, len(reviewsRef))
-	for i, review := range reviewsRef {
-		reviewID, err := bson.ObjectIDFromHex(review.ID)
-		if err != nil {
-			return nil, err
-		}
-		reviewIDs[i] = reviewID
-	}
-
+func GetReviews(ctx context.Context, reviewsRef []bson.ObjectID) ([]*model.Review, error) {
 	loaders := For(ctx)
-	return loaders.ReviewLoader.LoadAll(ctx, reviewIDs)
+	return loaders.ReviewLoader.LoadAll(ctx, reviewsRef)
 }

@@ -19,6 +19,7 @@ type User {
   name: String!         @goTag(key: "bson", value: "name")
   hobbies: [String!]!   @goTag(key: "bson", value: "hobbies")  # A ! next to a list means it cannot have any null objects.
   products: [Product!]! @goTag(key: "bson", value: "products") @goField(forceResolver: true)
+  reviews: [Review!]!   @goTag(key: "bson", value: "reviews") @goField(forceResolver: true)
 }
 
 type Product {
@@ -27,6 +28,7 @@ type Product {
   price: Float!        @goTag(key: "bson", value: "price")
   name: String!        @goTag(key: "bson", value: "name")
   description: String! @goTag(key: "bson", value: "description")
+  reviews: [Review!]!  @goTag(key: "bson", value: "reviews") @goField(forceResolver: true)
 }
 
 input ProductFilter {

@@ -17,8 +17,12 @@ import (
 // Seller is the resolver for the seller field.
 func (r *productResolver) Seller(ctx context.Context, obj *model.Product) (*model.User, error) {
 	// Field resolver for the seller field in Product
+	return loaders.GetUser(ctx, obj.Seller)
+}
 
-	return r.Query().User(ctx, obj.Seller)
+// Reviews is the resolver for the reviews field.
+func (r *productResolver) Reviews(ctx context.Context, obj *model.Product) ([]*model.Review, error) {
+	return loaders.GetReviews(ctx, obj.Reviews)
 }
 
 // User is the resolver for the user field.
@@ -199,21 +203,9 @@ func (r *userResolver) Products(ctx context.Context, obj *model.User) ([]*model.
 	return loaders.GetProducts(ctx, obj.Products)
 }
 
-	// Allocate memory
-	products := make([]*model.Product, 0, len(obj.Products))
-
-	// Note that obj.Products only contains a list of product objectIDs, not full product objects
-	// We loop through these objectIDs and sequentially query for the full product objects,
-	// appending them to products
-	for _, productRef := range obj.Products {
-		product, err := r.Query().Product(ctx, productRef)
-		if err != nil {
-			return nil, err
-		}
-		products = append(products, product)
-	}
-
-	return products, nil
+// Reviews is the resolver for the reviews field.
+func (r *userResolver) Reviews(ctx context.Context, obj *model.User) ([]*model.Review, error) {
+	return loaders.GetReviews(ctx, obj.Reviews)
 }
 
 // Product returns ProductResolver implementation.
@@ -242,7 +234,31 @@ type (
 //    it when you're done.
 //  - You have helper methods in this file. Move them out to keep these resolver files clean.
 /*
-	func (r *reviewResolver) ID(ctx context.Context, obj *model.Review) (bson.ObjectID, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	products := make([]*model.Product, 0, len(obj.Products))
+
+	// Note that obj.Products only contains a list of product objectIDs, not full product objects
+	// We loop through these objectIDs and sequentially query for the full product objects,
+	// appending them to products
+	for _, productRef := range obj.Products {
+		product, err := r.Query().Product(ctx, productRef)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, product)
+	}
+
+	return products, nil
 }
+
+// Product returns ProductResolver implementation.
+func (r *Resolver) Product() ProductResolver { return &productResolver{r} }
+
+// Query returns QueryResolver implementation.
+func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+
+// Review returns ReviewResolver implementation.
+func (r *Resolver) Review() ReviewResolver { return &reviewResolver{r} }
+
+// User returns UserResolver implementation.
+func (r *Resolver) User() UserResolver { return &userResolver{r} }
 */
