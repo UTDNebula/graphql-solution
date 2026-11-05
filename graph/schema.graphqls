@@ -20,6 +20,7 @@ type User {
   name: String!         
   hobbies: [String!]!   # A ! next to a list means it cannot have any null objects.
   products: [Product!]! @goField(forceResolver: true)
+  reviews: [Review!]!   @goField(forceResolver: true)
 }
 
 type Product {
@@ -28,6 +29,7 @@ type Product {
   price: Float!        
   name: String!        
   description: String! 
+  reviews: [Review!]!   @goField(forceResolver: true)
 }
 
 input ProductFilter {
