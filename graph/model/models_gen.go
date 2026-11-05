@@ -11,7 +11,7 @@ type Query struct {
 }
 
 type ReviewFilter struct {
-	Rating      *int32  `json:"rating,omitempty" bson:"rating"`
-	Title       *string `json:"title,omitempty" bson:"title"`
-	Description *string `json:"description,omitempty" bson:"description"`
+	Rating      *int32  `json:"rating,omitempty" bson:"rating,omitempty"`
+	Title       *string `json:"title,omitempty" bson:"title,omitempty"`
+	Description *string `json:"description,omitempty" bson:"description,omitempty"`
 }

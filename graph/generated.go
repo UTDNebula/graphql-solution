@@ -89,8 +89,6 @@ type QueryResolver interface {
 	Reviews(ctx context.Context, filter *model.ReviewFilter) ([]*model.Review, error)
 }
 type ReviewResolver interface {
-	ID(ctx context.Context, obj *model.Review) (bson.ObjectID, error)
-
 	Author(ctx context.Context, obj *model.Review) (*model.User, error)
 	Product(ctx context.Context, obj *model.Review) (*model.Product, error)
 }
@@ -1145,7 +1143,7 @@ func (ec *executionContext) _Review_id(ctx context.Context, field graphql.Collec
 			return ec.fieldContext_Review_id(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.Review().ID(ctx, obj)
+			return obj.ID, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bson.ObjectID) graphql.Marshaler {
@@ -1156,7 +1154,7 @@ func (ec *executionContext) _Review_id(ctx context.Context, field graphql.Collec
 	)
 }
 func (ec *executionContext) fieldContext_Review_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("Review", field, true, true, "ObjectID")
+	return graphql.NewScalarFieldContext("Review", field, false, false, "ObjectID")
 }
 
 func (ec *executionContext) _Review_rating(ctx context.Context, field graphql.CollectedField, obj *model.Review) (ret graphql.Marshaler) {
@@ -2731,11 +2729,10 @@ func (ec *executionContext) _Review(ctx context.Context, sel ast.SelectionSet, o
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Review")
 		case "id":
-			out.ResolveConcurrently(ec.OperationContext, &deferred, i,
-				true, true,
-				func(ctx context.Context) graphql.Marshaler {
-					return ec._Review_id(ctx, field, obj)
-				})
+			out.Values[i] = ec._Review_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "rating":
 			out.Values[i] = ec._Review_rating(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
