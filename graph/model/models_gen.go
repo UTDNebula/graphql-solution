@@ -9,3 +9,9 @@ type ProductFilter struct {
 
 type Query struct {
 }
+
+type ReviewFilter struct {
+	Rating      *int32  `json:"rating,omitempty" bson:"rating"`
+	Title       *string `json:"title,omitempty" bson:"title"`
+	Description *string `json:"description,omitempty" bson:"description"`
+}

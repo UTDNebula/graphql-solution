@@ -38,18 +38,18 @@ input ProductFilter {
 
 # Challenge 1 Part A
 type Review {
-  id: ID!
-  rating: Int!
-  title: String!
-  description: String!
-  author: User!
-  product: Product!
+  id: ObjectID!        @goTag(key: "bson", value: "_id")
+  rating: Int!         @goTag(key: "bson", value: "rating")
+  title: String!       @goTag(key: "bson", value: "title")
+  description: String! @goTag(key: "bson", value: "description")
+  author: User!        @goTag(key: "bson", value: "author")
+  product: Product!    @goTag(key: "bson", value: "product")
 }
 
 input ReviewFilter {
-  rating: Int
-  titleContains: String
-  descriptionContains: String
+  rating: Int         @goTag(key: "bson", value: "rating,omitempty")
+  title: String       @goTag(key: "bson", value: "title,omitempty")
+  description: String @goTag(key: "bson", value: "description,omitempty")
 }
 
 
@@ -64,7 +64,7 @@ type Query {
                                                 # (Either by name, description, or all products if empty)
 
   # Challenge 1 Part B
-  review(id: ID!): Review!
+  review(id: ObjectID!): Review!
   reviews(filter: ReviewFilter): [Review!]!
 }
 
